@@ -1,0 +1,114 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Locker</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap">
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-control {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+    }
+    .form-control:focus {
+      border-color: #aaa;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #3e8e41;
+    }
+    .error-message {
+      color: #red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .success-message {
+      color: #green;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Application Locker</h1>
+    <form>
+      <div class="form-group">
+        <label for="apps">Application:</label>
+        <input type="text" id="apps" name="apps" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="start-time">Start Time:</label>
+        <input type="datetime-local" id="start-time" name="start-time" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="end-time">End Time:</label>
+        <input type="datetime-local" id="end-time" name="end-time" class="form-control">
+      </div>
+      <button id="schedule-button" class="btn">Schedule Lock</button>
+      <div id="error-message" class="error-message"></div>
+      <div id="success-message" class="success-message"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('schedule-button').addEventListener('click', (e) => {
+      e.preventDefault(); // prevent form submission
+      const appName = document.getElementById('apps').value.trim();
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+
+      fetch('http://localhost:3000/lock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ appName, startTime, endTime })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById('success-message').textContent = `Application ${appName} will be locked from ${startTime} to ${endTime}`;
+        document.getElementById('success-message').style.display = 'block';
+      })
+      .catch(error => {
+        document.getElementById('error-message').textContent = `Error: ${error.message}`;
+        document.getElementById('error-message').style.display = 'block';
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
